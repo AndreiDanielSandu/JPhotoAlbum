@@ -61,6 +61,9 @@ import com.drew.metadata.exif.ExifDirectory;
 public class JPhotoFrame extends JFrame
     implements ListSelectionListener, ActionListener {
 
+    private static int SLIDESHOW_INTERVAL_MS         = 5000;
+    private static int PREVIEW_SLIDESHOW_INTERVAL_MS = 1000;
+
     public static String FILE_EXT = ".jph";
     public static String APP_NAME = "JPhotoAlbum";
     public static String FRAME_X = "frame_x";
@@ -99,7 +102,21 @@ public class JPhotoFrame extends JFrame
     protected File photoDirectory = null;
     
     protected static HashMap allFrames = new HashMap();
-    
+
+    protected JPhotoShow createSlideshow(int intervalMs) {
+        return new JPhotoShow(photos, intervalMs, list);
+    }
+
+    protected void startSlideshow(int intervalMs) {
+        if (photos.getSize() > 0) {
+            JPhotoShow show = createSlideshow(intervalMs);
+            show.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "No photos to show!",
+                    APP_NAME, JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     protected JPhotoFrame() throws Exception {
         // Do nothing... needed for inheritance !
     }
@@ -580,14 +597,10 @@ public class JPhotoFrame extends JFrame
             showExif();
         }
         else if (cmd.equals(JPhotoMenu.A_SLIDESHOW)) {
-            if (photos.getSize()>0) {
-                JPhotoShow show = new JPhotoShow(photos, 5000, list);
-                show.setVisible(true);
-            }
-            else
-                JOptionPane.showMessageDialog(this, "No photos to show!",
-                                              APP_NAME, JOptionPane.ERROR_MESSAGE);
-                
+            startSlideshow(SLIDESHOW_INTERVAL_MS);
+        }
+        else if (cmd.equals(JPhotoMenu.A_PREVIEW_SLIDESHOW)) {
+            startSlideshow(PREVIEW_SLIDESHOW_INTERVAL_MS);
         }
         else if (cmd.equals(JPhotoMenu.A_HELP)) {
             displayHelp();
